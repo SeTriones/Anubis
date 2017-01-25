@@ -33,7 +33,7 @@ RM-RF := rm -rf
 CC := gcc
 CXX := g++ -std=c++1y
 INCLUDES := -I. 
-CPPFLAGS := 
+CPPFLAGS :=
 CFLAGS := -g -O2 -Wall -fPIC
 CXXFLAGS := -g -O2 -Wall -fPIC
 LFLAGS :=
@@ -73,7 +73,7 @@ subdirs_clean :
 	$(CXX) $(CPPFLAGS) $(INCLUDES) -MMD -MP -MF $(DEPS_DIR)/$(*F).d -c $< -o $@
 
 .cpp.o :
-	$(CXX) $(CPPFLAGS) $(INCLUDES) -MMD -MP -MF $(DEPS_DIR)/$(*F).d -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -MF $(DEPS_DIR)/$(*F).d -c $< -o $@
 
 # $$(*F)取的是$@的文件部分，假设$@是/a/b/test.cpp，那么$(*F)就是test
 .c.o :

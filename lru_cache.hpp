@@ -14,7 +14,7 @@ public:
 
 	int* get(uint64_t key);
 
-	void set(uint64_t key, int* pos, int overwrite=0);
+	int* set(uint64_t key, int* pos, int overwrite=0);
 
 private:
 
@@ -22,5 +22,4 @@ private:
 	int capacity;
 	double_linked_list *list;
 	std::tr1::unordered_map<uint64_t, struct HashItem> hash;
-	pthread_mutex_t cache_mutex;
 };

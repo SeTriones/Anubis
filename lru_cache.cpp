@@ -4,30 +4,24 @@ LRUCache::LRUCache(int capacity):capacity(capacity){
 	size = 0;
 	list = (double_linked_list*)malloc(sizeof(double_linked_list));
 	init_list();
-	pthread_mutex_init(&cache_mutex, NULL);
 }
 
 LRUCache::~LRUCache() {
 	destroy_list(list);
-	pthread_mutex_destroy(&cache_mutex);
 }
 
 int* LRUCache::get(uint64_t key){
 	std::tr1::unordered_map<uint64_t, struct HashItem>::iterator it;
-	pthread_mutex_lock(&cache_mutex);
 	it = hash.find(key);
 	if (it == hash.end()) {
-		pthread_mutex_unlock(&cache_mutex);
 		return NULL;
 	}
 	mv_node_to_header(list, it->second.node, 0);
-	pthread_mutex_unlock(&cache_mutex);
 	return it->second.pos;
 }
 
-void LRUCache::set(uint64_t key, int* pos, int overwrite){
+int* LRUCache::set(uint64_t key, int* pos, int overwrite){
 	std::tr1::unordered_map<uint64_t, struct HashItem>::iterator it;
-	pthread_mutex_lock(&cache_mutex);
 	it = hash.find(key);
 	if (it != hash.end()) {
 		if(overwrite) {
@@ -37,8 +31,7 @@ void LRUCache::set(uint64_t key, int* pos, int overwrite){
 		else {
 			mv_node_to_header(list, it->second.node, 0);
 		}
-		pthread_mutex_lock(&cache_mutex);
-		return;
+		return pos;
 	}
 	int* free_pos = pos;
 	if (size == capacity) {
@@ -47,15 +40,15 @@ void LRUCache::set(uint64_t key, int* pos, int overwrite){
 		free_pos = it->second.pos;
 		hash.erase(it);
 		free(n);
+		size--;
 	}
 	node *tmp = new_node();
 	tmp->key = key;
-	tmp->next = NULL;
-	tmp->prev = NULL;
 	mv_node_to_header(list, tmp, 1);
 	HashItem item;
 	item.node = tmp;
 	item.pos = free_pos;
 	hash.insert(std::pair<int, struct HashItem>(key, item));
 	size++;
+	return free_pos;
 }
