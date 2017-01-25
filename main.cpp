@@ -33,7 +33,7 @@
 #include "util.hpp"
 #include "key_group.hpp"
 
-int testKeyGroup() {
+void testKeyGroup() {
 	KeyGroup* kg = new KeyGroup(10);
 	kg->dump();
 	int cnt;
@@ -58,6 +58,7 @@ int testKeyGroup() {
 		}
 	}
 	kg->dump();
+	return;
 }
 
 int main(int argc, char* argv[]) {

@@ -52,27 +52,6 @@ int base_nio_handler::readn_timeout(int fd, char* content, int need_to_read, tim
 	return need_to_read;
 }
 
-/*
-int base_nio_handler::read_data(int fd, void * buf, int buf_len, timeval* timeout) {
-    pollfd read_fd;
-    read_fd.fd = fd;
-    read_fd.events = POLLIN;
-    int poll_ret = poll(&read_fd, 1, timeout->tv_sec * 1000 + timeout->tv_usec / 1000);
-    if (poll <= 0 || !(read_fd.revents & POLLIN)) {
-        return -1; 
-    }
-    /*
-    fd_set rset;
-    FD_ZERO(&rset);
-    FD_SET(fd, &rset);
-    if (select(fd + 1, &rset, NULL, NULL, timeout) <= 0) {
-        //_INFO("select errno=%d", errno);
-        return -1;
-    }
-    */
-//    return read(fd, buf, buf_len);
-//}
-
 int base_nio_handler::read_data(int fd, void * buf, int buf_len, timeval* timeout) {
     
     if (!(timeout->tv_sec >= 0 && timeout->tv_usec >=0))
