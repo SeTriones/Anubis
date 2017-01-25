@@ -1,2 +1,4 @@
 ./Anubis
 *.o
+Anubis
+.deps
