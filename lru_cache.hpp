@@ -22,6 +22,5 @@ private:
 	int capacity;
 	double_linked_list *list;
 	std::tr1::unordered_map<uint64_t, struct HashItem> hash;
-	std::tr1::unordered_map<uint64_t, struct HashItem>::iterator it;
 	pthread_mutex_t cache_mutex;
 };

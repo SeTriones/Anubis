@@ -13,6 +13,7 @@ LRUCache::~LRUCache() {
 }
 
 int* LRUCache::get(uint64_t key){
+	std::tr1::unordered_map<uint64_t, struct HashItem>::iterator it;
 	pthread_mutex_lock(&cache_mutex);
 	it = hash.find(key);
 	if (it == hash.end()) {
@@ -25,9 +26,10 @@ int* LRUCache::get(uint64_t key){
 }
 
 void LRUCache::set(uint64_t key, int* pos, int overwrite){
+	std::tr1::unordered_map<uint64_t, struct HashItem>::iterator it;
 	pthread_mutex_lock(&cache_mutex);
 	it = hash.find(key);
-	if(it != hash.end()) {
+	if (it != hash.end()) {
 		if(overwrite) {
 			it->second.pos = pos;
 			mv_node_to_header(list, it->second.node, 0);
@@ -38,8 +40,8 @@ void LRUCache::set(uint64_t key, int* pos, int overwrite){
 		pthread_mutex_lock(&cache_mutex);
 		return;
 	}
-	int* free_pos = NULL;
-	if(size == capacity) {
+	int* free_pos = pos;
+	if (size == capacity) {
 		node *n = pop_from_tail(list);
 		it = hash.find(n->key);
 		free_pos = it->second.pos;
