@@ -28,9 +28,7 @@
 ////
 #include <stdlib.h>
 #include <stdio.h>
-#include "type.hpp"
 #include "service_log.hpp"
-#include "util.hpp"
 #include "key_group.hpp"
 
 void testKeyGroup() {
