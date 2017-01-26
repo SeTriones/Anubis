@@ -28,8 +28,15 @@
 ////
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdint.h>
 #include "service_log.hpp"
 #include "key_group.hpp"
+#include "receiver.hpp"
+
+void sigterm_handler(int signo){}
+void sigint_handler(int signo){}
 
 void testKeyGroup() {
 	KeyGroup* kg = new KeyGroup(10);
@@ -60,7 +67,23 @@ void testKeyGroup() {
 }
 
 int main(int argc, char* argv[]) {
-	_INFO("Anubis starts");
+	_INFO("Anubis starting");
+
+	close(STDIN_FILENO);
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGTERM, &sigterm_handler);
+	signal(SIGINT, &sigint_handler);
+
+	receiver* r = new receiver(4, 20480, 2, 100000);
+	r->open(8);
+	r->start_listen(4444);
+	r->activate();
+	_INFO("Anubis started");
+	pause();
+	_INFO("Anubis stopping");
+	r->stop();
+	delete r;
+	_INFO("Anubis stoppped");
 	return 0;
 }
 

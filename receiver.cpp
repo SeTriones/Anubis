@@ -11,7 +11,18 @@
 
 const static int max_recv_buf_len = (1024*1024);
 
+uint8_t testEndian() {
+	uint16_t v = 0x1234;
+	uint8_t* a = (uint8_t*)&v;
+	if (a[0] == 0x12) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 receiver::receiver(int _epoll_cnt, int _max_conn, int _key_group_cnt, int _group_capacity) : acceptor(_epoll_cnt, _max_conn) {
+	endian = testEndian();
 	key_group_cnt = _key_group_cnt;
 	group_capacity = _group_capacity;
 	key_groups = (KeyGroup**)malloc(key_group_cnt * sizeof(KeyGroup*));
@@ -42,7 +53,7 @@ int receiver::open(int thread_cnt) {
 		}
 		add_input_fd(pipe_read_fds[i], epoll_fds[i]);
 	}
-	return task_base::open(thread_cnt * epoll_cnt, (1<<10));
+	return task_base::open(thread_cnt * epoll_cnt, 256 * (1<<10));
 }
 
 int receiver::stop() {
@@ -130,7 +141,8 @@ int receiver::svc() {
 	return 0;
 }
 
-int receiver::start_listen() {
+int receiver::start_listen(int port) {
+	listen_port = port;
 	if (create_listen(listen_fd, listen_port)) {
 		_ERROR("create listen fail on port=%d", listen_port);
 		return -1;
@@ -149,7 +161,7 @@ int receiver::handle_request(int fd, int epoll_fd, char* buf) {
 		return -1;
 	}
 	request* req = (request*)buf;
-	need_to_read = req->key_len + req->body_len;
+	need_to_read = ntohl(req->key_len) + ntohl(req->body_len);
 	ret = readn_timeout(fd, buf + sizeof(uint32_t) * 2, need_to_read, &timeout);
 	if (ret != need_to_read) {
 		close_fd(fd);
@@ -158,10 +170,14 @@ int receiver::handle_request(int fd, int epoll_fd, char* buf) {
 	uint64_t key;
 	uint8_t section_id;
 	key = get_raw_key(buf, &section_id);
-	_INFO("get key=%ld,seciond_id=%u", key, section_id);
 	KeyGroup* key_group = key_groups[section_id % key_group_cnt];
 	int cnt = key_group->Inc(key);
-	writen_timeout(fd, &cnt, sizeof(int), 10);
+	uint32_t ucnt = (uint32_t)cnt;
+	_INFO("get key=%lu,seciond_id=%u,cnt=%u", key, section_id, ucnt);
+	int wcnt = writen_timeout(fd, &endian, sizeof(uint8_t), 10);
+	_INFO("wcnt=%d", wcnt);
+	wcnt = writen_timeout(fd, &ucnt, sizeof(uint32_t), 10);
+	_INFO("wcnt=%d", wcnt);
 	add_input_fd(fd, epoll_fd);
 	return 0;
 }

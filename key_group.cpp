@@ -32,7 +32,6 @@ int KeyGroup::Inc(uint64_t key) {
 			free_poses.pop_front();
 			pos = store + idx;
 		}
-		_INFO("cache set");
 		pos = cache->set(key, pos, 0);
 		*pos = 1;
 		pthread_mutex_unlock(&group_mutex);

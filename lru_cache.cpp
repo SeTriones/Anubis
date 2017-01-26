@@ -1,4 +1,5 @@
 #include "lru_cache.hpp"
+#include "service_log.hpp"
 
 LRUCache::LRUCache(int capacity):capacity(capacity){
 	size = 0;
@@ -48,7 +49,7 @@ int* LRUCache::set(uint64_t key, int* pos, int overwrite){
 	HashItem item;
 	item.node = tmp;
 	item.pos = free_pos;
-	hash.insert(std::pair<int, struct HashItem>(key, item));
+	hash.insert(std::pair<uint64_t, struct HashItem>(key, item));
 	size++;
 	return free_pos;
 }

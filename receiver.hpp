@@ -13,12 +13,14 @@ public:
 	virtual int open(int thread_cnt);
 	virtual int stop();
 	virtual int svc();
-	int start_listen();
+	int start_listen(int port);
 
 private:
 	int handle_request(int fd, int epoll_fd, char* buf);
 	int key_group_cnt;
 	int group_capacity;
+	// 0 small; 1 big;
+	uint8_t endian;
 	KeyGroup** key_groups;
 };
 

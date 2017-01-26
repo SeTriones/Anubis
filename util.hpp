@@ -5,6 +5,7 @@
 #include <openssl/md5.h>
 #include <string.h>
 #include <time.h>
+#include <arpa/inet.h>
 
 typedef struct {
 	uint32_t key_len;
@@ -32,15 +33,17 @@ static uint64_t get_key(uint8_t* key, size_t key_len, uint8_t* section_id) {
 
 static uint64_t get_raw_key(char* buf, uint8_t* section_id) {
 	request* req = (request*)buf;
-	_INFO("key_len=%d,body_len=%d", req->key_len, req->body_len);
+	uint32_t klen = ntohl(req->key_len);
+	uint32_t blen = ntohl(req->body_len);
 	raw_key* rkey = (raw_key*)req->content;
-	uint8_t* key_buf = (uint8_t*)malloc(req->key_len);
-	memcpy(key_buf, rkey->key, req->key_len - sizeof(uint32_t));
+	_INFO("key_len=%u,body_len=%u,interval=%u", klen, blen, ntohl(rkey->interval_in_seconds));
+	uint8_t* key_buf = (uint8_t*)malloc(klen);
+	memcpy(key_buf, rkey->key, klen - sizeof(uint32_t));
 	uint32_t time_slot = 0;
 	time_t cur_seconds = time(NULL);
-	time_slot = cur_seconds / rkey->interval_in_seconds; 
-	memcpy(key_buf, &time_slot, req->key_len - sizeof(uint32_t));
-	uint64_t ret = get_key(key_buf, req->key_len, section_id);
+	time_slot = cur_seconds / ntohl(rkey->interval_in_seconds); 
+	memcpy(key_buf, &time_slot, klen - sizeof(uint32_t));
+	uint64_t ret = get_key(key_buf, klen, section_id);
 	free(key_buf);
 	return ret;
 }
