@@ -41,7 +41,7 @@ LDFLAGS := -lpthread -lcrypto
 LIBS :=
 
 .PHONY : all objs dirs clean clean-objs clean-deps subdirs subdirs_clean
-all : dirs $(TARGET)
+all : dirs subdirs $(TARGET)
 
 # 这堆$开头的东西很奇怪，简单起见，我们只需要知道$@是目标集合，$^是依赖集合，$^是依赖中第一个目标的名字
 # 假设下面的这个语句，TARGET是test，OBJS是main.o test.o，那么
@@ -60,13 +60,23 @@ endif
 subdirs :
 	@for subdir in $(SUBDIRS); \
 		do \
-			cd $$subdir && make; \
+			cd $$subdir; \
+			if [ -f Makefile ]; then \
+				make; \
+			else \
+				echo "$$subdir no makefile"; \
+			fi\
 		done
 
 subdirs_clean :
 	@for subdir in $(SUBDIRS); \
 		do \
-			cd $$subdir && make clean; \
+			cd $$subdir; \
+			if [ -f Makefile ]; then \
+				make clean; \
+			else \
+				echo "$$subdir no makefile"; \
+			fi\
 		done
 
 .cc.o :
