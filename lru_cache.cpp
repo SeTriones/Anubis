@@ -3,7 +3,7 @@
 
 LRUCache::LRUCache(int capacity):capacity(capacity){
 	size = 0;
-	list = (double_linked_list*)malloc(sizeof(double_linked_list));
+	list = init_list();
 	init_list();
 }
 

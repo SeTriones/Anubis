@@ -16,6 +16,9 @@ void destroy_list(double_linked_list* lst) {
 		return;
 	}
 	node* n = lst->header;
+	if (n == NULL) {
+		return;
+	}
 	node* cur;
 	while (n) {
 		cur = n;
